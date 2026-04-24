@@ -1,0 +1,348 @@
+{
+  "schema": "public",
+  "tables": [
+    {
+      "table_name": "dwd_ar_loan_info",
+      "comment": "",
+      "columns": [
+        {
+          "column_name": "loan_no",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "cont_no",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "cust_id",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "prd_code",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "name",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "idtype",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "idnum",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "start_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "end_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "loan_status",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "end_sign",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "cancel_reason",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "payoff_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "total_terms",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "grace_day",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "is_debt_tr",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "is_debt_tr_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "rate_type",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "year_rate",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "day_rate",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "pnlt_rate",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "year_rate_profit",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "capital_ratio",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "loan_amt",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "prin_bal",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "normal_bal",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "ovd_bal",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "input_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "input_time",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "last_update_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "last_update_time",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "data_date",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "data_date_num",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "platform_code",
+          "data_type": "character varying(100)",
+          "comment": ""
+        }
+      ]
+    },
+    {
+      "table_name": "dwd_ev_repay_detail",
+      "comment": "",
+      "columns": [
+        {
+          "column_name": "loan_no",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "prd_code",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "total_terms",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "term_no",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "repay_status",
+          "data_type": "character varying(100)",
+          "comment": ""
+        },
+        {
+          "column_name": "princ",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "int",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "ovd",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "fee",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "compound_paid",
+          "data_type": "numeric(24,6)",
+          "comment": ""
+        },
+        {
+          "column_name": "repay_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "settle_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "update_date",
+          "data_type": "date",
+          "comment": ""
+        },
+        {
+          "column_name": "platform_code",
+          "data_type": "character varying(100)",
+          "comment": ""
+        }
+      ]
+    },
+    {
+      "table_name": "dwd_ev_repay_plan",
+      "comment": "",
+      "columns": [
+        {
+          "column_name": "loan_no",
+          "data_type": "character varying(40)",
+          "comment": ""
+        },
+        {
+          "column_name": "prd_code",
+          "data_type": "character varying(16)",
+          "comment": ""
+        },
+        {
+          "column_name": "loan_amt",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "trans_date",
+          "data_type": "timestamp without time zone",
+          "comment": ""
+        },
+        {
+          "column_name": "trans_amt",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "total_terms",
+          "data_type": "character varying(3)",
+          "comment": ""
+        },
+        {
+          "column_name": "term_no",
+          "data_type": "integer",
+          "comment": ""
+        },
+        {
+          "column_name": "rpy_amt",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "rpy_princ",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "rpy_int",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "rpy_ovd",
+          "data_type": "numeric(20,4)",
+          "comment": ""
+        },
+        {
+          "column_name": "start_date",
+          "data_type": "timestamp without time zone",
+          "comment": ""
+        },
+        {
+          "column_name": "end_date",
+          "data_type": "timestamp without time zone",
+          "comment": ""
+        },
+        {
+          "column_name": "int_start_date",
+          "data_type": "timestamp without time zone",
+          "comment": ""
+        },
+        {
+          "column_name": "free_int_day",
+          "data_type": "character varying(3)",
+          "comment": ""
+        },
+        {
+          "column_name": "update_date",
+          "data_type": "timestamp without time zone",
+          "comment": ""
+        },
+        {
+          "column_name": "platform_code",
+          "data_type": "character varying(16)",
+          "comment": ""
+        }
+      ]
+    }
+  ]
+}

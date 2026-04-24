@@ -1,0 +1,95 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage[UTF8]{ctex}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+
+\tikzset{
+  font=\small,
+  startstop/.style={ellipse, draw=black!80, fill=black!3, align=center, inner sep=6pt, text width=24mm},
+  entrybox/.style={rectangle, rounded corners=2.5pt, draw=blue!55!black, fill=blue!6, align=left, inner sep=6pt, text width=64mm},
+  phasebox/.style={rectangle, rounded corners=2.5pt, draw=black!80, fill=gray!8, align=left, inner sep=6pt, text width=70mm},
+  agentbox/.style={rectangle, rounded corners=3pt, draw=teal!55!black, fill=teal!8, align=left, inner sep=8pt, text width=70mm},
+  resultbox/.style={rectangle, rounded corners=2.5pt, draw=green!50!black, fill=green!8, align=left, inner sep=6pt, text width=64mm},
+  retrybox/.style={rectangle, rounded corners=2.5pt, draw=orange!70!black, fill=orange!12, align=left, inner sep=6pt, text width=64mm},
+  decision/.style={diamond, draw=purple!60!black, fill=purple!8, align=center, inner sep=1pt, aspect=2.4, text width=26mm},
+  arrow/.style={-{Stealth[length=2.4mm]}, line width=0.95pt, draw=black!85},
+  group/.style={rectangle, rounded corners=4pt, draw=black!65, dashed, line width=0.8pt, inner sep=7pt}
+}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 18mm]
+
+% ============ 入口模块 ============
+\node[startstop] (user) {用户};
+\node[entrybox, right=12mm of user] (ui) {\textbf{Web 入口（Gradio）}\\\texttt{app/gradio\_app.py} $\rightarrow$ \texttt{app/gradio\_ui.py}\\输入：业务需求（必填）+ 统计维度（可选）\\点击“运行”$\rightarrow$ \texttt{run\_nl2sql()}};
+\node[phasebox, right=16mm of ui] (prep) {\textbf{输入解析/初始化}\\\texttt{build\_user\_query()}（prompts）\\\texttt{\_get\_db\_and\_agent()}\\加载 \texttt{database\_schema.json}（项目根目录）\\初始化 \texttt{NL2SQL7PhaseAgent}};
+
+\draw[arrow] (user) -- (ui);
+\draw[arrow] (ui) -- (prep);
+
+% ============ 阶段1：Schema Discovery / Load（含启动校验/更新） ============
+\node[phasebox, below=12mm of prep] (p1) {\textbf{阶段1} Schema 加载\\\texttt{skills/skill\_schema.py} \texttt{discover\_schema\_tool()}\\\texttt{tools/db/tool\_schema\_store.\_load\_database\_schema\_impl()}\\输入：本地缓存 \texttt{database\_schema.json}\\输出：全量 schema \texttt{all\_db}};
+\node[decision, below=of p1] (dschema) {schema 一致?};
+\node[retrybox, left=24mm of dschema] (updateschema) {\textbf{schema 校验/更新（Web 启动时）}\\\texttt{tools/db/tool\_schema\_store.py}\\\texttt{\_check\_latest\_schema\_once\_impl()}\\\texttt{\_refresh\_local\_schema\_file\_impl()}};
+
+\draw[arrow] (prep) -- (p1);
+\draw[arrow] (p1) -- (dschema);
+\draw[arrow] (dschema.west) -- node[above,sloped] {否} (updateschema.east);
+\draw[arrow] (updateschema.north) to[out=70,in=180] ([xshift=-1mm]p1.west);
+
+% ============ 主链路：Agent + 工具（顺序由 LLM 与 prompt 约束） ============
+\node[phasebox, below=18mm of dschema] (p2) {\textbf{阶段2.1} Schema Linking\\\texttt{tools/llm\_phases/tool\_schema\_linker.py}\\输入：\texttt{user\_query} + \texttt{all\_db}\\输出：相关表 \texttt{tables}};
+
+\node[phasebox, below=of p2] (filter) {\textbf{阶段2.2} 过滤 Schema（相关表）\\\texttt{tools/db/tool\_schema\_store.py}\\\texttt{\_filter\_schema\_by\_tables\_impl()}\\输入：\texttt{all\_db} + \texttt{tables}\\输出：\texttt{filtered\_schema}};
+
+\node[phasebox, below=of filter] (p3) {\textbf{阶段3} 子问题分解\\\texttt{tools/llm\_phases/tool\_subproblem\_decomposer.py}\\输入：\texttt{user\_query} + \texttt{filtered\_schema}\\输出：\texttt{subproblems}};
+\node[phasebox, below=of p3] (p4) {\textbf{阶段4} 查询计划\\\texttt{tools/llm\_phases/tool\_query\_planner.py}\\输入：\texttt{user\_query} + \texttt{subproblems} + \texttt{filtered\_schema}\\输出：\texttt{plan}};
+\node[phasebox, below=of p4] (p51) {\textbf{阶段5.1} 生成 DSL（JSON）\\\texttt{tools/llm\_phases/tool\_dsl\_generator.py}\\输入：\texttt{user\_query} + \texttt{plan} + \texttt{filtered\_schema}\\输出：\texttt{dsl\_obj}};
+\node[phasebox, below=of p51] (p52) {\textbf{阶段5.2} 生成 SQL\\\texttt{tools/llm\_phases/tool\_sql\_generator.py}\\输入：\texttt{dsl\_obj} + \texttt{filtered\_schema}\\输出：\texttt{sql}};
+\node[phasebox, below=of p52] (p6) {\textbf{阶段6} 执行 SQL（Neon/PostgreSQL）\\\texttt{tools/db/tool\_postgres.py}\\\texttt{execute\_sql()}\\输入：\texttt{sql}\\输出：\texttt{neon\_df} + \texttt{neon\_msg}};
+
+\node[decision, below=of p6] (dexec) {执行成功?};
+\node[retrybox, below left=10mm and 30mm of dexec] (p7fail) {\textbf{阶段7} ·错误纠正（执行失败重试）\\·最多3次\\\texttt{tools/llm\_phases/tool\_error\_corrector.py}\\输入：\texttt{user\_query} + \texttt{sql} + \texttt{error\_msg} + \texttt{all\_db}\\输出：\texttt{fixed\_sql}};
+\node[decision, below right=10mm and 30mm of dexec] (dzero) {结果是否为空(0行)?};
+\node[retrybox, below=15mm of dzero] (p7zero) {\textbf{阶段7} ·错误纠正（0行兜底重试）\\·最多3次\\输入：\texttt{user\_query} + \texttt{sql} + \texttt{neon\_msg} + \texttt{all\_db}\\输出：\texttt{fixed\_sql}};
+
+\node[resultbox, below=20mm, left=5mm of p7zero] (uiout) {\textbf{展示输出（Gradio）}\\1.目标SQL\\2.执行说明 + 结果表\\3.耗时统计/调试信息\\4.简易可视化分析（可选）};
+\node[startstop, below=10mm of uiout] (end) {结束};
+
+% 主流程连线
+\draw[arrow] (dschema.east) -- ++(30mm,0) |- node[right,yshift=20mm] {是} (p2.east);
+\draw[arrow] (p2) -- (filter);
+\draw[arrow] (filter) -- (p3);
+\draw[arrow] (p3) -- (p4);
+\draw[arrow] (p4) -- (p51);
+\draw[arrow] (p51) -- (p52);
+\draw[arrow] (p52) -- (p6);
+\draw[arrow] (p6) -- (dexec);
+
+% 执行失败 -> 纠错 -> 重新执行
+\draw[arrow] (dexec.west) -- node[above,sloped] {否} (p7fail.north);
+\draw[arrow] (p7fail.north west) to[out=110,in=220] ([xshift=-2mm]p6.west);
+
+% 执行成功 -> 0行判断
+\draw[arrow] (dexec.east) -- node[above,sloped] {是} (dzero.north);
+% 0行 -> 重试 -> 重新执行
+\draw[arrow] (dzero.south) -- node[right] {是} (p7zero.north);
+\draw[arrow] (p7zero.north east) to[out=70,in=330] ([xshift=2mm]p6.east);
+% 非0行 -> 输出
+\draw[arrow] (dzero.south) -- node[above] {否} (uiout.north);
+
+% 最终输出
+\draw[arrow] (uiout) -- (end);
+
+% 分组虚线框
+\node[group, fit=(user)(ui)(prep),
+      label={[align=left, yshift=1mm]north:交互入口与初始化（\texttt{app/gradio\_ui.run\_nl2sql}）}] {};
+
+\node[group, fit=(p1)(dschema)(updateschema),
+      label={[align=left, yshift=1mm]north:阶段1：Schema Discovery/Load（含校验/更新）}] {};
+
+\node[group, fit=(p2)(filter)(p3)(p4)(p51)(p52)(p6)(dexec)(p7fail)(dzero)(p7zero)(uiout)(end),
+      label={[align=left, yshift=1mm]north:阶段2-7：Schema Linking$\rightarrow$拆解$\rightarrow$计划$\rightarrow$DSL$\rightarrow$SQL$\rightarrow$执行$\rightarrow$纠错闭环}] {};
+
+\end{tikzpicture}
+\end{document}

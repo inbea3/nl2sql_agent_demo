@@ -1,0 +1,11 @@
+# 依赖
+pandas
+tqdm
+psycopg2-binary
+langchain
+langchain-openai
+langchain-core
+langgraph
+pydantic
+gradio
+python-dotenv
